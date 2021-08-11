@@ -6,6 +6,7 @@ import ru.geekbrains.july_chat.chat_server.error.WrongCredentialsException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public class ChatClientHandler {
@@ -24,6 +25,8 @@ public class ChatClientHandler {
             this.out = new DataOutputStream(socket.getOutputStream());
             System.out.println("Handler created");
             this.server = server;
+//            socket.connect(new InetSocketAddress(8089),120000);
+//            socket.setSoTimeout(120000);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -31,16 +34,30 @@ public class ChatClientHandler {
 
     public void handle() {
         handlerThread = new Thread(() -> {
+            long a = System.currentTimeMillis();
             authorize();
-            try {
-                while (!Thread.currentThread().isInterrupted() && socket.isConnected()) {
-                    String message = in.readUTF();
-                    handleMessage(message);
+            System.currentTimeMillis();
+            long b = System.currentTimeMillis()-a;
+            if (b > 120000){
+                try {
+                    socket.shutdownInput();
+                    socket.shutdownOutput();
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                server.removeAuthorizedClientFromList(this);
+            }
+            else {
+                try {
+                    while (!Thread.currentThread().isInterrupted() && socket.isConnected()) {
+                        String message = in.readUTF();
+                        handleMessage(message);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    server.removeAuthorizedClientFromList(this);
+                }
             }
         });
         handlerThread.start();
