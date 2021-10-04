@@ -12,6 +12,7 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="july_chat" target="11" />
+      <module name="july_chat-dev" target="11" />
       <module name="july_chat_client" target="11" />
       <module name="july_chat_server" target="11" />
     </bytecodeTargetLevel>
