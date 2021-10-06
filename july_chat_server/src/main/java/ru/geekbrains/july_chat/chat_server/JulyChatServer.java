@@ -11,17 +11,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class JulyChatServer {
     private static final int PORT = 8089;
     private AuthService authService;
     //    private List<ChatClientHandler> handlers;
     private Map<String, ChatClientHandler> handlers;
+    private ExecutorService executorService;
 
     public JulyChatServer() {
         this.authService = new InMemoryAuthService();
 //        this.handlers = new ArrayList<>();
         this.handlers = new HashMap<>();
+        this.executorService = Executors.newCachedThreadPool();
     }
 
     public void start() {
@@ -35,6 +39,9 @@ public class JulyChatServer {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        finally {
+            executorService.shutdownNow();
         }
     }
     public void broadcastMessage(String from, String message) {
@@ -78,6 +85,10 @@ public class JulyChatServer {
         message = String.format("[%s] -> [%s]: %s", sender, recipient, message);
         handler.sendMessage(message);
         senderHandler.sendMessage(message);
+    }
+
+    public ExecutorService getExecutorService() {
+        return executorService;
     }
 
     public boolean isNicknameBusy(String nickname) {
