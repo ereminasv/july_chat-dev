@@ -12,6 +12,7 @@ import ru.geekbrains.july_chat.chat_app.net.ChatMessageService;
 import ru.geekbrains.july_chat.chat_app.net.MessageProcessor;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class MainChatController implements Initializable, MessageProcessor {
@@ -31,6 +32,7 @@ public class MainChatController implements Initializable, MessageProcessor {
     public ListView<String> contactList;
     public TextField inputField;
     public Button btnSendMessage;
+    private HistoryRecord historyRecord;
 
 
     public void mockAction(ActionEvent actionEvent) {
@@ -49,6 +51,7 @@ public class MainChatController implements Initializable, MessageProcessor {
         if (recipient.equals("ALL")) message = "/" + recipient + REGEX + text;
         else message = "/w" + REGEX + recipient + REGEX + text;
         chatMessageService.send(message);
+        historyRecord.writeHistory(String.format("[ME] %s\n", text));
         inputField.clear();
     }
 
@@ -92,6 +95,11 @@ public class MainChatController implements Initializable, MessageProcessor {
                 this.nickName = parsedMessage[1];
                 loginPanel.setVisible(false);
                 mainChatPanel.setVisible(true);
+                this.historyRecord = new HistoryRecord(nickName);
+                List<String> history = historyRecord.readHistory();
+                for (String s : history) {
+                    mainChatArea.appendText(s + System.lineSeparator());
+                }
                 break;
             case "ERROR:":
                 showError(parsedMessage[1]);
@@ -112,6 +120,7 @@ public class MainChatController implements Initializable, MessageProcessor {
                 break;
             default:
                 mainChatArea.appendText(parsedMessage[0] + System.lineSeparator());
+                historyRecord.writeHistory(parsedMessage[0] + System.lineSeparator());
         }
 
     }
