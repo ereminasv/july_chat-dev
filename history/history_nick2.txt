@@ -7,3 +7,6 @@
 [nick2]: 22
 [ME] 2
 [nick2]: 2
+[ME] zbzghz
+[nick2]: zbzghz
+[nick1]: xcgnfh
